@@ -78,4 +78,7 @@ app.post('/send-report', upload.single('photo'), async (req, res) => {
 });
 
 // КРИТИЧНО ДЛЯ VERCEL: Экспортируем приложение вместо app.listen()
-module.exports = app;
+// Принудительно отдаем форму при заходе на главную страницу
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});module.exports = app;
