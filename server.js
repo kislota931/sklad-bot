@@ -81,4 +81,5 @@ app.post('/send-report', upload.single('photo'), async (req, res) => {
 // Принудительно отдаем форму при заходе на главную страницу
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
-});module.exports = app;
+});
+module.exports = app;
