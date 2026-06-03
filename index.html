@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Списание инструмента</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .form-container { width: 100%; max-width: 450px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); box-sizing: border-box; margin: 15px; }
+        h2 { text-align: center; color: #1a1a1a; margin-top: 0; margin-bottom: 25px; font-size: 22px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a4a4a; font-size: 14px; }
+        input[type="text"], textarea { width: 100%; padding: 12px; border: 1px solid #ccd0d5; border-radius: 6px; box-sizing: border-box; font-size: 15px; background-color: #fcfcfc; }
+        input[type="text"]:focus, textarea:focus { border-color: #007bff; outline: none; background-color: #fff; }
+        input[type="file"] { width: 100%; padding: 10px; background: #f8f9fa; border: 1px dashed #ccd0d5; border-radius: 6px; box-sizing: border-box; cursor: pointer; }
+        button { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Списание инструмента</h2>
+    <form action="/send-report" method="POST" enctype="multipart/form-data">
+        
+        <div class="form-group">
+            <label for="owner">Кто списывает (ФИО):</label>
+            <input type="text" id="owner" name="owner" required placeholder="Константинопольский А.В.">
+        </div>
+
+        <div class="form-group">
+            <label for="params">Что за инструмент (модель, размер):</label>
+            <input type="text" id="params" name="params" required placeholder="Перфоратор Makita HR2470, бур 12мм">
+        </div>
+
+        <div class="form-group">
+            <label for="reason">Что случилось / Причина:</label>
+            <textarea id="reason" name="reason" rows="3" required placeholder="Искрит мотор, сломался патрон, износ..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="photo">Сделайте фото поломки:</label>
+            <input type="file" id="photo" name="photo" accept="image/*" capture="environment" required>
+        </div>
+
+        <button type="submit">Отправить отчет</button>
+    </form>
+</div>
+
+</body>
+</html>
