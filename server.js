@@ -3,26 +3,17 @@ const multer = require('multer');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
-app.use(express.static(__dirname));
+
 const app = express();
-const port = 3000;
 
-// Автоматически создаем папку для временного хранения фото, если её нет
-if (!fs.existsSync('uploads')){
-    fs.mkdirSync('uploads');
-}
-
-const upload = multer({ dest: 'uploads/' });
+// На Vercel файлы можно сохранять ТОЛЬКО во временную папку /tmp
+const upload = multer({ dest: '/tmp/' });
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Разрешаем открывать форму из папки компьютера (исправление блокировок CORS)
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+// Раздаем статические файлы (включая index.html) из корня проекта
+app.use(express.static(path.join(__dirname)));
 
 app.post('/send-report', upload.single('photo'), async (req, res) => {
     const { owner, params, reason } = req.body;
@@ -32,22 +23,20 @@ app.post('/send-report', upload.single('photo'), async (req, res) => {
         return res.status(400).send('Ошибка: Вы не сделали фото инструмента.');
     }
 
-    // ==========================================
-    // НАСТРОЙКА ПОЧТЫ (Заполни своими данными)
-    // ==========================================
+    // НАСТРОЙКА ПОЧТЫ (Проверь свои данные здесь)
     let transporter = nodemailer.createTransport({
-        host: 'smtp.yandex.ru',  // Для Яндекса оставляй так. Для Mail.ru пиши: smtp.mail.ru
+        host: 'smtp.yandex.ru', 
         port: 465,
         secure: true, 
         auth: {
-            user: 'kislota931@yandex.ru', // Укажи почту, С КОТОРОЙ будут уходить письма
-            pass: 'qaaqcsbjryxqkwuf' // Сюда пишем специальный пароль приложения (Шаг 3)
+            user: 'kislota931@yandex.ru', 
+            pass: 'qaaqcsbjryxqkwuf' // Сюда твой актуальный пароль приложения
         }
     });
 
     const mailOptions = {
-        from: '"Робот Склада" <kislota931@yandex.ru>', // Повтори почту отправителя тут
-        to: 'vg@evess.ru', // Укажи почту, НА КОТОРУЮ должны приходить уведомления
+        from: '"Робот Склада" <kislota931@yandex.ru>', 
+        to: 'vg@evess.ru', 
         subject: `⚠️ Списание инструмента: ${owner}`,
         html: `
             <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; max-width: 600px;">
@@ -68,16 +57,18 @@ app.post('/send-report', upload.single('photo'), async (req, res) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        // Удаляем временный файл с компьютера после отправки, чтобы не забивать место
-        fs.unlinkSync(photo.path); 
         
-        // Красивый ответ пользователю
+        // Удаляем временный файл
+        if (fs.existsSync(photo.path)) {
+            fs.unlinkSync(photo.path);
+        }
+        
         res.send(`
             <div style="font-family: sans-serif; text-align: center; padding: 50px;">
                 <h2 style="color: #28a745;">✓ Успешно отправлено!</h2>
                 <p>Информация о списании инструмента передана на почту.</p>
                 <br>
-                <a href="javascript:history.back()" style="text-decoration: none; padding: 10px 20px; background: #007bff; color: white; border-radius: 4px;">Назад в форму</a>
+                <a href="/" style="text-decoration: none; padding: 10px 20px; background: #007bff; color: white; border-radius: 4px;">Назад в форму</a>
             </div>
         `);
     } catch (error) {
@@ -86,6 +77,5 @@ app.post('/send-report', upload.single('photo'), async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Сервер успешно запущен на http://localhost:${port}`);
-});
+// КРИТИЧНО ДЛЯ VERCEL: Экспортируем приложение вместо app.listen()
+module.exports = app;
